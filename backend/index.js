@@ -27,7 +27,7 @@ const server = http.createServer(app);
 //Initialize socket.io server
 export const io = new Server(server, {
   cors: {
-    origin: "https://mern-chat-app-cnhl.onrender.com",
+    origin: "https://mern-chat-app-1-pmd3.onrender.com",
     credentials: true,
   },
 });
