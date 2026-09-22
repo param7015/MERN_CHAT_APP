@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
 app.use(express.json({ limit: "50mb" }));
 app.use(
   cors({
-    origin: true,
+    origin:"https://mern-chat-app-1-pmd3.onrender.com",
     credentials: true,
   })
 );
