@@ -114,6 +114,12 @@ export const AuthProvider = ({ children }) => {
         });
     };
     useEffect(() => {
+        if (token) {
+            checkAuth();
+        }
+    }, [token]);
+    
+    useEffect(() => {
         if (authUser) {
             connectSocket(authUser);
         }
