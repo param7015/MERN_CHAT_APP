@@ -73,17 +73,38 @@ export const AuthProvider = ({ children }) => {
             throw error;
         }
     };
+    // const connectSocket = (userData) => {
+    //     if (!userData || socket?.connected)
+    //         return;
+    //     const newSocket = io(backendUrl, {
+    //         auth: {
+    //             userId: userData._id,
+    //         },
+    //         withCredentials: true,
+    //     });
+    //     newSocket.connect();
+    //     setSocket(newSocket);
+    //     newSocket.on("getOnlineUsers", (userIds) => {
+    //         setOnlineUsers(userIds);
+    //     });
+    // };
     const connectSocket = (userData) => {
-        if (!userData || socket?.connected)
-            return;
+        if (!userData) return;
+
+        // Disconnect old socket if it exists
+        if (socket) {
+            socket.disconnect();
+        }
+
         const newSocket = io(backendUrl, {
             auth: {
                 userId: userData._id,
             },
             withCredentials: true,
         });
-        newSocket.connect();
+
         setSocket(newSocket);
+
         newSocket.on("getOnlineUsers", (userIds) => {
             setOnlineUsers(userIds);
         });
