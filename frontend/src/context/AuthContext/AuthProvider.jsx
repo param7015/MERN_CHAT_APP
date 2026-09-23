@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("token"));
     const [authUser, setAuthUser] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState([]);
+    const socketRef = useRef(null);
     const [socket, setSocket] = useState(null);
     const checkAuth = async () => {
         try {
@@ -52,7 +53,11 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setAuthUser(null);
         setOnlineUsers([]);
-        socket?.disconnect();
+
+        socketRef.current?.disconnect();
+        socketRef.current = null;
+        setSocket(null);
+
         toast.success("Logged out successfully!");
     };
     const updateProfile = async (formData) => {
@@ -91,10 +96,8 @@ export const AuthProvider = ({ children }) => {
     const connectSocket = (userData) => {
         if (!userData) return;
 
-        // Disconnect old socket if it exists
-        if (socket) {
-            socket.disconnect();
-        }
+        // Don't create another socket if one already exists
+        if (socketRef.current?.connected) return;
 
         const newSocket = io(backendUrl, {
             auth: {
@@ -103,6 +106,7 @@ export const AuthProvider = ({ children }) => {
             withCredentials: true,
         });
 
+        socketRef.current = newSocket;
         setSocket(newSocket);
 
         newSocket.on("getOnlineUsers", (userIds) => {
@@ -110,10 +114,10 @@ export const AuthProvider = ({ children }) => {
         });
     };
     useEffect(() => {
-        if (token) {
-            checkAuth();
+        if (authUser) {
+            connectSocket(authUser);
         }
-    }, []);
+    }, [authUser]);
     const value = {
         axios,
         authUser,
